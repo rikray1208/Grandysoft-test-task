@@ -15,6 +15,49 @@ export class CanvasModel {
         this.updateLines()
     }
 
+    collapse() {
+        this.lines.forEach(line => {
+            this.collapseAnimation(line)
+        })
+    }
+
+    collapseAnimation(line: ILine) {
+
+        const k = ((line.y2 - line.y1) / (line.x2 - line.x1));
+        const middleX = Number(((line.x2 + line.x1) / 2).toFixed(0));
+        const tick = () => {
+            const animation = requestAnimationFrame(tick)
+            this.clear();
+
+            if (line.x1 > line.x2) {
+                const preX1 = line.x1;
+                const preY1 = line.y1;
+                line.x1 = line.x2;
+                line.x2 = preX1
+                line.y1 = line.y2;
+                line.y2 = preY1
+            }
+
+            if (line.x1 !== middleX) {
+                line.x1 += 1;
+                line.y1 += k;
+            }
+            if(line.x2 !== middleX) {
+                line.x2 -= 1;
+                line.y2 -= k;
+            }
+
+            this.updateLines();
+            this.getIntersection()
+
+            if (line.x1 === middleX && line.x2 === middleX) {
+                this.lines = this.lines.filter(el => el !== line)
+                cancelAnimationFrame(animation)
+            }
+        }
+        tick()
+    }
+
     addListeners() {
         this.canvas.onmouseup = this.onMouseUp.bind(this);
         this.canvas.onmousedown = this.onMouseDown.bind(this);
@@ -69,26 +112,26 @@ export class CanvasModel {
 
     onMouseMove(e: MouseEvent) {
 
-       if(this.mouse.pLeft && this.mouse.isFirst) {
-           this.clear();
-           this.updateLines();
-           this.drawLine(
-               this.firstPoint[0],
-               this.firstPoint[1],
-               e.pageX - this.canvas.offsetLeft,
-               e.pageY - this.canvas.offsetLeft
-           );
+        if(this.mouse.pLeft && this.mouse.isFirst) {
+            this.clear();
+            this.updateLines();
+            this.drawLine(
+                this.firstPoint[0],
+                this.firstPoint[1],
+                e.pageX - this.canvas.offsetLeft,
+                e.pageY - this.canvas.offsetLeft
+            );
 
-           const line: ILine = {
-               x1: this.firstPoint[0],
-               y1: this.firstPoint[1],
-               x2: e.pageX - this.canvas.offsetLeft,
-               y2: e.pageY - this.canvas.offsetLeft
-           }
-           this.lines.push(line)
-           this.getIntersection();
-           this.lines.pop()
-       }
+            const line: ILine = {
+                x1: this.firstPoint[0],
+                y1: this.firstPoint[1],
+                x2: e.pageX - this.canvas.offsetLeft,
+                y2: e.pageY - this.canvas.offsetLeft
+            }
+            this.lines.push(line)
+            this.getIntersection();
+            this.lines.pop()
+        }
 
     }
 

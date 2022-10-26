@@ -6,19 +6,22 @@ const Canvas: FC = () => {
     const [canvas, setCanvas] = useState<CanvasModel>({} as CanvasModel);
 
     useEffect(() => {
-        if( canvasRef.current && canvasRef.current?.getContext('2d')) {
+        if( canvasRef.current ) {
             const context = canvasRef.current.getContext('2d');
+
             if ( context !== null ) {
                 setCanvas(new CanvasModel(canvasRef.current, context))
             }
         }
     }, []);
 
-
     return (
-        <div style={{border: '1px solid black', width: 600}}>
-            <canvas ref={canvasRef} width={600} height={600}/>
-        </div>
+        <>
+            <div style={{border: '1px solid black', width: 600}}>
+                <canvas ref={canvasRef} width={600} height={600}/>
+            </div>
+            <button onClick={ () => canvas.collapse() }>collapse</button>
+        </>
     );
 };
 
